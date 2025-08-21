@@ -1,0 +1,490 @@
+/*KIDS*/
+WITH BrandTrustData AS (
+    SELECT 
+        `Product Brand`, `Product Rating`,
+        ROUND(AVG(`Product Rating`), 2) AS Avg_Rating, 
+        SUM(`Verified Buyers`) AS Total_Buyers, 
+        (ROUND(AVG(`Product Rating`), 2) * SUM(`Verified Buyers`)) AS Brand_Trust_Score
+    FROM 
+        kids
+    GROUP BY 
+        `Product Brand`,`Product Rating`
+),
+MinMax AS (
+    SELECT 
+        MIN(Brand_Trust_Score) AS Min_BTS, 
+        MAX(Brand_Trust_Score) AS Max_BTS 
+    FROM 
+        BrandTrustData
+)
+SELECT 
+    btd.`Product Brand`, `Product Rating`,
+    btd.Total_Buyers,
+    ROUND(
+        ((btd.Brand_Trust_Score - mm.Min_BTS) / (mm.Max_BTS - mm.Min_BTS)) * 100, 2
+    ) AS BTS
+FROM 
+    BrandTrustData btd
+CROSS JOIN 
+    MinMax mm
+ORDER BY 
+    BTS DESC;
+
+/*WOMEN*/
+WITH BrandTrustData AS (
+    SELECT 
+        Product_Brand, Product_Rating,
+        ROUND(AVG(Product_Rating), 2) AS Avg_Rating, 
+        SUM(Verified_Buyers) AS Total_Buyers, 
+        (ROUND(AVG(Product_Rating), 2) * SUM(Verified_Buyers)) AS Brand_Trust_Score
+    FROM 
+        women
+    GROUP BY 
+        Product_Brand,Product_Rating
+),
+MinMax AS (
+    SELECT 
+        MIN(Brand_Trust_Score) AS Min_BTS, 
+        MAX(Brand_Trust_Score) AS Max_BTS 
+    FROM 
+        BrandTrustData
+)
+SELECT 
+    btd.Product_Brand, Product_Rating,
+    btd.Total_Buyers,
+    ROUND(
+        ((btd.Brand_Trust_Score - mm.Min_BTS) / (mm.Max_BTS - mm.Min_BTS)) * 100, 2
+    ) AS BTS
+FROM 
+    BrandTrustData btd
+CROSS JOIN 
+    MinMax mm
+where ROUND(
+	((btd.Brand_Trust_Score - mm.Min_BTS) / (mm.Max_BTS - mm.Min_BTS)) * 100, 2)   < 10 and Product_Rating > 4.5
+ORDER BY Total_Buyers;
+
+WITH BrandTrustData AS (
+    SELECT 
+        Product_Brand, Product_Rating,
+        ROUND(AVG(Product_Rating), 2) AS Avg_Rating, 
+        SUM(Verified_Buyers) AS Total_Buyers, 
+        (ROUND(AVG(Product_Rating), 2) * SUM(Verified_Buyers)) AS Brand_Trust_Score
+    FROM 
+        women
+    GROUP BY 
+        Product_Brand,Product_Rating
+),
+MinMax AS (
+    SELECT 
+        MIN(Brand_Trust_Score) AS Min_BTS, 
+        MAX(Brand_Trust_Score) AS Max_BTS 
+    FROM 
+        BrandTrustData
+)
+SELECT 
+    btd.Product_Brand, Product_Rating,
+    btd.Total_Buyers,
+    ROUND(
+        ((btd.Brand_Trust_Score - mm.Min_BTS) / (mm.Max_BTS - mm.Min_BTS)) * 100, 2
+    ) AS BTS
+FROM 
+    BrandTrustData btd JOIN MinMax mm
+ORDER BY BTS DESC;
+
+/*MEN*/
+WITH BrandTrustData AS (
+    SELECT 
+        `Product Brand`, `Product Rating`,
+        ROUND(AVG(`Product Rating`), 2) AS Avg_Rating, 
+        SUM(`Verified Buyers`) AS Total_Buyers, 
+        (ROUND(AVG(`Product Rating`), 2) * SUM(`Verified Buyers`)) AS Brand_Trust_Score
+    FROM 
+        men
+    GROUP BY 
+        `Product Brand`,`Product Rating`
+),
+MinMax AS (
+    SELECT 
+        MIN(Brand_Trust_Score) AS Min_BTS, 
+        MAX(Brand_Trust_Score) AS Max_BTS 
+    FROM 
+        BrandTrustData
+)
+SELECT 
+    btd.`Product Brand`, `Product Rating`,
+    btd.Total_Buyers,
+    ROUND(
+        ((btd.Brand_Trust_Score - mm.Min_BTS) / (mm.Max_BTS - mm.Min_BTS)) * 100, 2
+    ) AS BTS
+FROM 
+    BrandTrustData btd
+CROSS JOIN 
+    MinMax mm
+ where ROUND(
+		((btd.Brand_Trust_Score - mm.Min_BTS) / (mm.Max_BTS - mm.Min_BTS)) * 100, 2)   < 10 and `Product Rating` = 5
+ORDER BY 
+    3 asc;
+    
+SELECT 
+    Product_Brand, 
+    ROUND(AVG(Product_Rating), 2) AS Avg_Rating, 
+    SUM(Verified_Buyers) AS Total_Buyers, 
+    (ROUND(AVG(Product_Rating), 2) * SUM(Verified_Buyers)) AS Brand_Trust_Score
+FROM 
+    WOMEN
+GROUP BY 
+    Product_Brand
+ORDER BY 
+    Brand_Trust_Score DESC;
+
+SELECT 
+    Product_Name, 
+    Product_Brand, 
+    Product_Price, 
+    Product_Rating, 
+    Verified_Buyers, 
+    (Product_Rating * Verified_Buyers) / Product_Price AS Price_Performance_Ratio
+FROM 
+    women
+ORDER BY 
+    Price_Performance_Ratio DESC;
+    
+ /*PPR OF WOMEN*/   
+WITH Max_PPR AS (
+    SELECT MAX((Product_Rating * Verified_Buyers) / Product_Price) AS Max_PPR
+    FROM  women
+)
+SELECT 
+    distinct Product_Brand,
+    Product_Price,
+    Product_Rating,
+    Verified_Buyers,
+    ROUND(((Product_Rating * Verified_Buyers) / Product_Price) * (100 / (SELECT Max_PPR FROM Max_PPR)), 2) AS Price_Performance_Ratio
+FROM 
+    women
+ORDER BY 
+    Price_Performance_Ratio DESC;
+    
+/*ppr of kids*/
+WITH Max_PPR AS (
+    SELECT MAX((`Product Rating` * `Verified Buyers`) / `Product Price`) AS Max_PPR
+    FROM  kids
+)
+SELECT 
+     `Product Brand`,
+    `Product Price`,
+    `Product Rating`,`Verified Buyers`,
+    ROUND(((`Product Rating` * `Verified Buyers`) / `Product Price`) * (100 / (SELECT Max_PPR FROM Max_PPR)), 2) AS Price_Performance_Ratio
+FROM 
+    kids
+ORDER BY 
+    Price_Performance_Ratio DESC;
+
+/*high price = high ratings */
+SELECT 
+    Product_Name, 
+    Product_Brand, 
+    Product_Price, 
+    Product_Rating, sum(Verified_Buyers)
+FROM 
+    women
+where Product_Rating = 5
+group by Product_Name,Product_Brand
+ORDER BY 
+    Product_Price DESC, Product_Rating DESC;
+ 
+ /*Underrated Products ,  Which High-Quality Items Need More Visibility?*/
+SELECT 
+    Product_Name, 
+    Product_Brand, 
+    Product_Rating, 
+    Verified_Buyers
+FROM 
+   women
+WHERE 
+    Product_Rating > 4.5 
+    AND Verified_Buyers < 100
+ORDER BY 
+    verified_buyers DESC;
+    
+SELECT 
+    `Product Name`, 
+    `Product Brand`, 
+    `Product Rating`, 
+    `Verified Buyers`
+FROM 
+   men
+WHERE 
+    `Product Rating` = 5 
+    AND `Verified Buyers` < 100
+ORDER BY 
+    `Verified Buyers`DESC;
+    
+SELECT 
+    `Product Name`, 
+    `Product Brand`, 
+    `Product Rating`, 
+    `Verified Buyers`
+FROM 
+   kids
+WHERE 
+    `Product Rating` = 5 
+    AND `Verified Buyers` < 100
+ORDER BY 
+    `Verified Buyers`DESC;
+    
+WITH Brand_Avg AS (
+    SELECT 
+        `Product Brand`, 
+        ROUND(AVG(`Product Price`), 2) AS Avg_Price, 
+        ROUND(AVG(`Product Rating`), 2) AS Avg_Rating, 
+        SUM(`Verified Buyers`) AS Total_Buyers
+    FROM kids
+    GROUP BY `Product Brand`
+),
+
+Expensive_Low_Trust AS (
+    SELECT 
+        `Product Brand`, 
+        Avg_Price, 
+        Avg_Rating, 
+        Total_Buyers, 
+        'Expensive Low-Value' AS Category
+    FROM Brand_Avg
+    WHERE Avg_Price > (SELECT AVG(Avg_Price) FROM Brand_Avg) -- Above average price
+    AND Avg_Rating <= 4.0 -- Lower ratings
+    AND Total_Buyers < (SELECT AVG(Total_Buyers) FROM Brand_Avg) -- Lower than average buyers
+),
+Budget_High_Value AS (
+    SELECT 
+        `Product Brand`, 
+        Avg_Price, 
+        Avg_Rating, 
+        Total_Buyers, 
+        'Budget High-Value' AS Category
+    FROM Brand_Avg
+    WHERE Avg_Price < (SELECT AVG(Avg_Price) FROM Brand_Avg) -- Below average price
+    AND Avg_Rating >= 4.0 -- Allow slightly lower rating threshold
+    AND Total_Buyers >= (SELECT AVG(Total_Buyers) * 0.8 FROM Brand_Avg) -- Relax buyer condition
+)
+
+
+SELECT * FROM Expensive_Low_Trust
+UNION ALL
+SELECT * FROM Budget_High_Value
+ORDER BY Category, Avg_Price DESC;
+
+WITH Brand_Avg AS (
+    SELECT 
+        `Product Name`, `Product Brand`,
+        ROUND(AVG(`Product Price`), 2) AS Avg_Price, 
+        ROUND(AVG(`Product Rating`), 2) AS Avg_Rating, 
+        SUM(`Verified Buyers`) AS Total_Buyers
+    FROM KIDS
+    GROUP BY `Product Brand`
+),
+
+
+Expensive_Low_Trust AS (
+    SELECT 
+        `Product Brand`, 
+        Avg_Price, 
+        Avg_Rating, 
+        Total_Buyers, 
+        'Expensive Low-Value' AS Category
+    FROM Brand_Avg
+    WHERE Avg_Price > (SELECT AVG(Avg_Price) FROM Brand_Avg) -- Above average price
+    AND Avg_Rating <= 4.0 -- Lower ratings
+    AND Total_Buyers < (SELECT AVG(Total_Buyers) FROM Brand_Avg) -- Lower than average buyers
+),
+
+Budget_High_Value AS (
+    SELECT 
+        `Product Brand`, 
+        Avg_Price, 
+        Avg_Rating, 
+        Total_Buyers, 
+        'Budget High-Value' AS Category
+    FROM Brand_Avg
+    WHERE Avg_Price < (SELECT AVG(Avg_Price) FROM Brand_Avg) -- Below average price
+    AND Avg_Rating >= 4.0 -- Allow slightly lower rating threshold
+    AND Total_Buyers >= (SELECT AVG(Total_Buyers) * 0.8 FROM Brand_Avg) -- Relax buyer condition
+)
+SELECT * FROM Expensive_Low_Trust
+UNION ALL
+SELECT * FROM Budget_High_Value
+ORDER BY Category, Avg_Price DESC;
+
+WITH Brand_Avg AS (
+    SELECT 
+        `Product Brand`,
+        ROUND(AVG(`Product Price`), 2) AS Avg_Price, 
+        ROUND(AVG(`Product Rating`), 2) AS Avg_Rating, 
+        SUM(`Verified Buyers`) AS Total_Buyers
+    FROM `KIDS`
+    GROUP BY `Product Brand`
+),
+
+Avg_Values AS (
+    SELECT 
+        AVG(Avg_Price) AS Overall_Avg_Price,
+        AVG(Total_Buyers) AS Overall_Avg_Buyers
+    FROM Brand_Avg
+),
+
+Expensive_Low_Trust AS (
+    SELECT 
+        ba.`Product Brand`, 
+        ba.Avg_Price, 
+        ba.Avg_Rating, 
+        ba.Total_Buyers, 
+        'Expensive Low-Value' AS Category
+    FROM Brand_Avg ba, Avg_Values av
+    WHERE ba.Avg_Price > av.Overall_Avg_Price -- Above average price
+    AND ba.Avg_Rating <= 4.0 -- Lower ratings
+    AND ba.Total_Buyers < av.Overall_Avg_Buyers -- Lower than average buyers
+),
+
+
+Budget_High_Value AS (
+    SELECT 
+        ba.`Product Brand`, 
+        ba.Avg_Price, 
+        ba.Avg_Rating, 
+        ba.Total_Buyers, 
+        'Budget High-Value' AS Category
+    FROM Brand_Avg ba, Avg_Values av
+    WHERE ba.Avg_Price < av.Overall_Avg_Price -- Below average price
+    AND ba.Avg_Rating >= 4.0 -- High ratings
+    AND ba.Total_Buyers >= av.Overall_Avg_Buyers * 0.8 -- Relaxed buyer threshold
+)
+
+
+SELECT * FROM Expensive_Low_Trust
+UNION ALL
+SELECT * FROM Budget_High_Value
+ORDER BY Category, Avg_Price DESC;
+
+WITH Brand_Avg AS (
+    SELECT 
+        `Product Brand`,
+        ROUND(AVG(`Product Price`), 2) AS Avg_Price, 
+        ROUND(AVG(`Product Rating`), 2) AS Avg_Rating, 
+        SUM(`Verified Buyers`) AS Total_Buyers
+    FROM men
+    GROUP BY `Product Brand`
+),
+
+Avg_Values AS (
+    SELECT 
+        AVG(Avg_Price) AS Overall_Avg_Price,
+        AVG(Total_Buyers) AS Overall_Avg_Buyers
+    FROM Brand_Avg
+),
+
+
+Expensive_Low_Trust AS (
+    SELECT 
+        ba.`Product Brand`, 
+        ba.Avg_Price, 
+        ba.Avg_Rating, 
+        ba.Total_Buyers, 
+        'Expensive Low-Value' AS Category
+    FROM Brand_Avg ba, Avg_Values av
+    WHERE ba.Avg_Price > av.Overall_Avg_Price -- Above average price
+    AND ba.Avg_Rating <= 4.0 -- Lower ratings
+    AND ba.Total_Buyers < av.Overall_Avg_Buyers -- Lower than average buyers
+),
+
+
+Budget_High_Value AS (
+    SELECT 
+        ba.`Product Brand`, 
+        ba.Avg_Price, 
+        ba.Avg_Rating, 
+        ba.Total_Buyers, 
+        'Budget High-Value' AS Category
+    FROM Brand_Avg ba, Avg_Values av
+    WHERE ba.Avg_Price < av.Overall_Avg_Price -- Below average price
+    AND ba.Avg_Rating >= 4.0 -- High ratings
+    AND ba.Total_Buyers >= av.Overall_Avg_Buyers * 0.8 -- Relaxed buyer threshold
+)
+
+
+SELECT * FROM Expensive_Low_Trust
+UNION ALL
+SELECT * FROM Budget_High_Value
+ORDER BY Category, Avg_Price DESC;
+
+
+
+
+WITH Discount_Analysis AS (
+    SELECT 
+        Product_Brand, 
+        Product_Name, 
+        Discount, 
+        Product_Price, 
+        Product_Rating, 
+        Verified_Buyers,
+        CASE 
+            WHEN Discount BETWEEN 0 AND 30 THEN 'Low Discount (0-30%)'
+            WHEN Discount BETWEEN 31 AND 60 THEN 'Medium Discount (31-60%)'
+            ELSE 'High Discount (60%+)' 
+        END AS Discount_Category
+    FROM women
+)
+SELECT 
+    Discount_Category, 
+    COUNT(Product_Name) AS Total_Products, 
+    ROUND(AVG(Product_Rating), 2) AS Avg_Rating, 
+    SUM(Verified_Buyers) AS Total_Buyers
+FROM Discount_Analysis
+GROUP BY Discount_Category
+ORDER BY Avg_Rating DESC, Total_Buyers DESC;
+
+WITH Discount_Analysis AS (
+    SELECT 
+       `Product Brand`, 
+	     `Product Name`, 
+        `Product Price`, 
+        `Product Rating`, 
+        `Verified Buyers`,
+        CASE 
+            WHEN `Discount in %` BETWEEN 0 AND 30 THEN 'Low Discount (0-30%)'
+            WHEN `Discount in %` BETWEEN 31 AND 60 THEN 'Medium Discount (31-60%)'
+            ELSE 'High Discount (60%+)' 
+        END AS Discount_Category
+    FROM kids
+)
+SELECT 
+    Discount_Category, 
+    COUNT(`Product Name`) AS Total_Products, 
+    ROUND(AVG(`Product Rating`), 2) AS Avg_Rating, 
+    SUM(`Verified Buyers`) AS Total_Buyers
+FROM Discount_Analysis
+GROUP BY Discount_Category
+ORDER BY Avg_Rating DESC, Total_Buyers DESC;
+
+WITH Discount_Analysis AS (
+    SELECT 
+       `Product Brand`, 
+	     `Product Name`, 
+        `Product Price`, 
+        `Product Rating`, 
+        `Verified Buyers`,
+        CASE 
+            WHEN Discount BETWEEN 0 AND 30 THEN 'Low Discount (0-30%)'
+            WHEN Discount BETWEEN 31 AND 60 THEN 'Medium Discount (31-60%)'
+            ELSE 'High Discount (60%+)' 
+        END AS Discount_Category
+    FROM men
+)
+SELECT 
+    Discount_Category, 
+    COUNT(`Product Name`) AS Total_Products, 
+    ROUND(AVG(`Product Rating`), 2) AS Avg_Rating, 
+    SUM(`Verified Buyers`) AS Total_Buyers
+FROM Discount_Analysis
+GROUP BY Discount_Category
+ORDER BY Avg_Rating DESC, Total_Buyers DESC;
