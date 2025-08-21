@@ -3,7 +3,7 @@
 # Problem Statement
 Myntra’s current pricing, discounts, and product visibility strategies are not fully optimized for maximum sales and customer trust. Refining these strategies is critical to improving profitability, enhancing brand reliability, and ensuring stronger product positioning for sustained growth.
 
-#Data Collection
+# Data Collection
 The dataset was divided into three key segments:
 * Women Table → Product Name, Brand, Price, Discount %, Rating, Verified Buyers
 * Men Table → Product Name, Brand, Price, Discount %, Rating, Verified Buyers
@@ -29,11 +29,11 @@ Feature them in homepage banners, recommendations, and email marketing.
 Strengthen budget-friendly brand visibility since they provide strong value perception.
 Ensure price alignment with customer expectations to improve conversion and trust.
 
-#Tools Used
+# Tools Used
 SQL → Data extraction and segmentation.
 Excel/Visualization Tools → Comparative analysis of brands, discounts, and performance.
 
-#Conclusion
+# Conclusion
 By leveraging data to balance pricing, discounts, and brand visibility, Myntra can:
 Improve profitability
 Build stronger customer trust
